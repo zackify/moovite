@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { ViteDevServer } from "vite";
+import { GetServerSideProps } from "./types";
 import { urlToFilePath } from "./urlToFilePath";
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 type PageLoaderResult = {
   template: string;
   Page: any;
-  getServerSideProps?: () => any;
+  getServerSideProps?: GetServerSideProps;
 };
 
 export const pageLoader = async ({

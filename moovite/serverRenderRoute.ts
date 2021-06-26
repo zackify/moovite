@@ -4,6 +4,8 @@ import ReactDOMServer from "react-dom/server";
 import { ViteDevServer } from "vite";
 import { pageLoader } from "./pageLoader";
 import { urlToFileName } from "./urlToFilePath";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 type Props = {
   vite: ViteDevServer;
@@ -27,7 +29,7 @@ export const serverRenderRoute =
       });
 
       let props = {};
-      if (getServerSideProps) props = await getServerSideProps();
+      if (getServerSideProps) props = await getServerSideProps({ prisma });
 
       const appHtml = await ReactDOMServer.renderToString(
         React.createElement(Page, props)
