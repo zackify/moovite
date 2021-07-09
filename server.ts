@@ -1,7 +1,7 @@
 import express from "express";
-import { createServer as createViteServer, send } from "vite";
-import { transformClientBundle } from "./moovite/transformClientBundle";
+import { createServer as createViteServer } from "vite";
 import { serverRenderRoute } from "./moovite/serverRenderRoute";
+import { getServerSideProps } from "./moovite/getServerSideProps";
 
 async function createServer() {
   const app = express();
@@ -11,8 +11,8 @@ async function createServer() {
   });
   // use vite's connect instance as middleware
   app.use(vite.middlewares);
+  app.use("/data/*", getServerSideProps({ vite }));
 
-  app.use("*.client.tsx", transformClientBundle({ vite }));
   app.use("*", serverRenderRoute({ vite }));
 
   app.listen(3000, () => console.log("listening on :3000"));

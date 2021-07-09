@@ -2,3 +2,4 @@ dist
 node_modules
 server/-*
 .env
+src/entry.tsx

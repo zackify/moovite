@@ -5,6 +5,7 @@ import { ViteDevServer } from "vite";
 import { pageLoader } from "./pageLoader";
 import { urlToFileName } from "./urlToFilePath";
 import { PrismaClient } from "@prisma/client";
+import { StaticRouter } from "react-router-dom";
 const prisma = new PrismaClient();
 
 type Props = {
@@ -23,25 +24,45 @@ export const serverRenderRoute =
     }
 
     try {
-      let { template, Page, getServerSideProps } = await pageLoader({
+      let { template, getServerSideProps } = await pageLoader({
         url,
         vite,
       });
 
+      // todo make this do the production way differently
+      const { App } = await vite.ssrLoadModule(`/moovite/entry.tsx`);
+
       let props = {};
       if (getServerSideProps) props = await getServerSideProps({ prisma });
 
+      let index = await vite.ssrLoadModule(`/src/pages/index.tsx`);
+      let test = await vite.ssrLoadModule(`/src/pages/test.tsx`);
+      const routes = [
+        {
+          path: "/",
+          exact: true,
+          component: index.default,
+        },
+        {
+          path: "/test",
+          component: test.default,
+        },
+      ];
+
       const appHtml = await ReactDOMServer.renderToString(
-        React.createElement(Page, props)
+        React.createElement(
+          StaticRouter,
+          { location: req.originalUrl },
+          React.createElement(App, {
+            pageProps: props,
+            routes,
+          })
+        )
       );
 
       // 5. Inject the app-rendered HTML into the template.
       const html = template
         .replace(`<!--app-html-->`, appHtml)
-        .replace(
-          "/src/pages/index.tsx",
-          `/src/pages${urlToFileName(url)}.client.tsx`
-        )
         .replace(
           "</head>",
           `<script type="text/javascript">window._MOOVITE_PROPS_ = ${JSON.stringify(
