@@ -1,51 +1,40 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ReactDOM from "react-dom";
+import { Page } from "./types";
+import { createElement, useState } from "react";
+import { MooviteContext, routes } from "./context";
 
 type Props = {
-  pageProps?: any;
-  routes?: { path: string; component: any; exact?: boolean }[];
+  page?: Page;
 };
 
-export const App = ({ pageProps, routes }: Props) => {
+export const App = ({ page }: Props) => {
+  let [activePage, setActivePage] = useState(page);
+
   return (
-    <Switch>
-      {routes.map((route) => (
-        <Route
-          key={route.path}
-          path={route.path}
-          exact={route.exact}
-          render={(props) => (
-            <route.component {...pageProps} {...props.location.state} />
-          )}
-        />
-      ))}
-    </Switch>
+    <MooviteContext.Provider value={{ activePage, setActivePage }}>
+      {createElement(activePage.component, activePage.props)}
+    </MooviteContext.Provider>
   );
 };
 
-//React.lazy only works on the frontend
-
-import Test from "../src/pages/test";
-import Index from "../src/pages/index";
-const clientRoutes = [
-  {
-    path: "/",
-    exact: true,
-    component: Index,
-  },
-  {
-    path: "/test",
-    component: Test,
-  },
-];
-
 const hydrate = async () => {
+  let activeRoute = routes.find(
+    (route) => route.path === window.location.pathname
+  );
+
+  let { default: component } = await activeRoute.getComponent();
+
   ReactDOM.hydrate(
-    <Router>
-      <App pageProps={(window as any)._MOOVITE_PROPS_} routes={clientRoutes} />
-    </Router>,
+    <App
+      page={{
+        props: (window as any)._MOOVITE_PROPS_,
+        path: window.location.pathname,
+        component,
+      }}
+    />,
     document.getElementById("app")
   );
 };
 
+//@ts-ignore
 if (!import.meta.env.SSR) hydrate();

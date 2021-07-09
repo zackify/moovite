@@ -1,25 +1,19 @@
 import { ReactNode } from "react";
-import { useHistory } from "react-router-dom";
+import { useMoovite } from "./context";
 
 type Props = {
   to: string;
   children: ReactNode;
 };
 
-const getServerData = async (to) => {
-  let res = await fetch(`/data/${to}`);
-  return await res.json();
-};
-
 export const Link = ({ to, children }: Props) => {
-  let history = useHistory();
+  let { navigate } = useMoovite();
   return (
     <a
       href={to}
-      onClick={async (e) => {
+      onClick={(e) => {
         e.preventDefault();
-        let data = await getServerData(to);
-        history.push(to, data);
+        navigate(to);
       }}
     >
       {children}

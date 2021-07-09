@@ -1,5 +1,6 @@
 import { Link } from "../../moovite/Link";
-import { GetServerSideProps } from "../../moovite/types";
+import { GetServerSideProps } from "../../moovite/rendering/types";
+import { Item } from "../components/Item";
 
 export const getServerSideProps: GetServerSideProps = async ({ prisma }) => {
   let user = await prisma.user.findFirst();
@@ -15,6 +16,9 @@ const Homepage = ({ name }: Props) => {
     <div onClick={() => console.log("hello")}>
       Hello from prisma, {name}
       <Link to="/test">Go to test</Link>
+      <br />
+      Here is a test component, click to confirm client side rendering works!
+      <Item />
     </div>
   );
 };

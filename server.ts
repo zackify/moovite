@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { serverRenderRoute } from "./moovite/serverRenderRoute";
-import { getServerSideProps } from "./moovite/getServerSideProps";
+import { serverRenderRoute } from "./moovite/rendering/serverRenderRoute";
+import { getServerSideProps } from "./moovite/rendering/getServerSideProps";
 
 async function createServer() {
   const app = express();

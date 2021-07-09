@@ -11,6 +11,8 @@ type Props = {
 
 type PageLoaderResult = {
   template: string;
+  Page: any;
+  App: any;
   getServerSideProps?: GetServerSideProps;
 };
 
@@ -18,14 +20,6 @@ export const pageLoader = async ({
   url,
   vite,
 }: Props): Promise<PageLoaderResult> => {
-  if (process.env.NODE_ENV === "production") {
-    let template = fs.readFileSync(require("dist/client/index.html"), "utf-8");
-    let {
-      getServerSideProps,
-    } = require(`./dist/server/src/pages${urlToFilePath(url)}`);
-    return { template, getServerSideProps };
-  }
-
   // 1. Read index.html
   let template = fs.readFileSync(
     path.resolve(process.cwd(), "index.html"),
@@ -40,9 +34,10 @@ export const pageLoader = async ({
   //    your ESM source code to be usable in Node.js! There is no bundling
   //    required, and provides efficient invalidation similar to HMR.
 
-  const { getServerSideProps } = await vite.ssrLoadModule(
-    `/src/pages${urlToFilePath(url)}`
-  );
+  const [{ default: Page, getServerSideProps }, { App }] = await Promise.all([
+    vite.ssrLoadModule(`/src/pages${urlToFilePath(url)}`),
+    vite.ssrLoadModule(`/moovite/entry.tsx`),
+  ]);
 
-  return { template, getServerSideProps };
+  return { template, Page, getServerSideProps, App };
 };
