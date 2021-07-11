@@ -1,3 +1,5 @@
+import { Link } from "../../moovite/Link";
+
 export const getServerSideProps = () => {
   return { message: "Hello from the server!" };
 };
