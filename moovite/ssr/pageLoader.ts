@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { ViteDevServer } from "vite";
 import { urlToFilePath } from "./urlToFilePath";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 type Props = {
   url: string;
@@ -39,7 +41,7 @@ export const pageLoader = async ({
   ]);
 
   let props = {};
-  if (getServerSideProps) props = await getServerSideProps();
+  if (getServerSideProps) props = await getServerSideProps({ prisma });
 
   return { template, Page, props, App };
 };

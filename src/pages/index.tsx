@@ -1,7 +1,9 @@
 import { Link } from "../../moovite/Link";
+import { GetServerSideProps } from "../../moovite/ssr/types";
 
-export const getServerSideProps = () => {
-  return { message: "Hello from the server!" };
+export const getServerSideProps: GetServerSideProps = async ({ prisma }) => {
+  let firstMessage = await prisma.message.findFirst();
+  return { message: firstMessage.text };
 };
 
 type Props = {
